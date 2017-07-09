@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2017 AI Dream Team (https://github.com/AI-DreamTeam/blackjacker) -->
+<component type="desktop">
+  <id>com.github.ai-dreamteam.blackjacker</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0+</project_license>
+  <name>Blackjacker</name>
+  <summary>A simple to use blackjack client, with a powerful AI</summary>
+  <description>
+    <p>
+      Everything you need to create simple and beautiful presentations with text, images, and shapes. Add some spice to your presentations with a wide variety of background patterns and beautiful color palette.
+    </p>
+  </description>
+  <provides>
+    <binary>com.github.ai-dreamteam.blackjacker</binary>
+  </provides>
+  <releases>
+  </releases>
+  <screenshots>
+    <screenshot type="default">
+      <image></image>
+    </screenshot>
+  </screenshots>
+  <developer_name>AI DreamTeam</developer_name>
+  <url type="homepage">https://github.com/AI-DreamTeam/blackjacker</url>
+  <url type="bugtracker">https://github.com/AI-DreamTeam/blackjacker/issues</url>
+  <url type="help">https://github.com/AI-DreamTeam/blackjacker/issues</url>
+  <update_contact>felescoto@hotmail.com</update_contact>
+  <custom>
+    <value key="x-appcenter-color-primary">#F5F5F5</value>
+    <value key="x-appcenter-color-primary-text">#C92E34</value>
+  </custom>
+</component>

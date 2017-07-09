@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Blackjacker
+Comment=Play blackjack
+Exec=
+Icon=com.github.ai-dreamteam.blackjacker
+Terminal=false
+Type=Application
+StartupNotify=true
+Categories=Game;
+
