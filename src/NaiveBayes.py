@@ -1,32 +1,54 @@
 import sys
 
-classTable = { '3' : [1, 2],
-               '4' : [1, 3],
-               '5' : [1, 4, 2, 3],
-               '6' : [1, 5, 2, 4],
-               '7' : [1, 6, 2, 5, 3, 4],
-               '8' : [1, 7, 2, 6, 3, 5],
-               '9' : [1, 8, 2, 7, 3, 6, 4, 5],
-               '10' : [1, 9, 2, 8, 3, 7, 4, 6],
-               '11' : [1, 10, 2, 9, 3, 8, 4, 7, 5, 6],
-               '12' : [1, 11, 2, 10, 3, 9, 4, 8, 5, 7],
-               '13' : [2, 11, 3, 10, 4, 9, 5, 8, 6, 7],
-               '14' : [3, 11, 4, 10, 5, 9, 6, 8],
-               '15' : [4, 11, 5, 10, 6, 9, 7, 8],
-               '16' : [5, 11, 6, 10, 7, 9],
-               '17' : [6, 11, 7, 10, 8, 9],
-               '18' : [7, 11, 8, 10],
-               '19' : [8, 11, 9, 10],
-               '20' : [9, 11],
-               '21' : [10, 11]
+classTable = {
+'2':
+[],
+'3':
+[1,1,1],
+'4':
+[1,2,1],
+'5':
+[1,3,1,2,2,1],
+'6':
+[1,4,1,2,3,1,2,2,2],
+'7':
+[1,5,1,2,4,1,3,3,1,2,3,2],
+'8':
+[1,6,1,2,5,1,3,4,1,2,4,2,3,3,2],
+'9':
+[1,7,1,2,6,1,3,5,1,4,4,1,2,5,2,3,4,2,3,3,3],
+'10':
+[1,8,1,2,7,1,3,6,1,4,5,1,2,6,2,3,5,2,4,4,2,3,4,3],
+'11':
+[1,9,1,2,8,1,3,7,1,4,6,1,5,5,1,2,7,2,3,6,2,4,5,2,3,5,3,4,4,3],
+'12':
+[1,10,1,2,9,1,3,8,1,4,7,1,5,6,1,2,8,2,3,7,2,4,6,2,5,5,2,3,6,3,4,5,3,4,4,4],
+'13':
+[1,11,1,2,10,1,3,9,1,4,8,1,5,7,1,6,6,1,2,9,2,3,8,2,4,7,2,5,6,2,3,7,3,4,6,3,5,5,3,4,5,4],
+'14':
+[2,11,1,3,10,1,4,9,1,5,8,1,6,7,1,2,10,2,3,9,2,4,8,2,5,7,2,6,6,2,3,8,3,4,7,3,5,6,3,4,6,4,5,5,4],
+'15':
+[3,11,1,4,10,1,5,9,1,6,8,1,7,7,1,2,11,2,3,10,2,4,9,2,5,8,2,6,7,2,3,9,3,4,8,3,5,7,3,6,6,3,4,7,4,5,6,4,5,5,5],
+'16':
+[4,11,1,5,10,1,6,9,1,7,8,1,3,11,2,4,10,2,5,9,2,6,8,2,7,7,2,3,10,3,4,9,3,5,8,3,6,7,3,4,8,4,5,7,4,6,6,4,5,6,5],
+'17':
+[5,11,1,6,10,1,7,9,1,8,8,1,4,11,2,5,10,2,6,9,2,7,8,2,3,11,3,4,10,3,5,9,3,6,8,3,7,7,3,4,9,4,5,8,4,6,7,4,5,7,5,6,6,5],
+'18':
+[6,11,1,7,10,1,8,9,1,5,11,2,6,10,2,7,9,2,8,8,2,4,11,3,5,10,3,6,9,3,7,8,3,4,10,4,5,9,4,6,8,4,7,7,4,5,8,5,6,7,5,6,6,6],
+'19':
+[7,11,1,8,10,1,9,9,1,6,11,2,7,10,2,8,9,2,5,11,3,6,10,3,7,9,3,8,8,3,4,11,4,5,10,4,6,9,4,7,8,4,5,9,5,6,8,5,7,7,5,6,7,6],
+'20':
+[8,11,1,9,10,1,7,11,2,8,10,2,9,9,2,6,11,3,7,10,3,8,9,3,5,11,4,6,10,4,7,9,4,8,8,4,5,10,5,6,9,5,7,8,5,6,8,6,7,7,6],
+'21':
+[9,11,1,10,10,1,8,11,2,9,10,2,7,11,3,8,10,3,9,9,3,6,11,4,7,10,4,8,9,4,5,11,5,6,10,5,7,9,5,8,8,5,6,9,6,7,8,6,7,7,7]
 }
 
 class1Probability = 8 / 19
 class2Probability = 7 / 19
 class3Probability = 4 / 19
-currCount_C1 = 40
-currCount_C2 = 58
-currCount_C3 = 12
+currCount_C1 = 93
+currCount_C2 = 309
+currCount_C3 = 210
 vocabularyLength = 11
 
 #Empty arrays, same size as the hand
@@ -42,7 +64,10 @@ def main():
         if element != args[0]:
             cardArray.append(int(element))
 
-    naiveBayes(cardArray)
+    if not sum(cardArray) > 21:
+        naiveBayes(cardArray)
+    else:
+        print('Hand cannot be more than 21! Try with a different hand.\n\n')
 
 def naiveBayes(cardArray):
     cardArrayIndex = 0
@@ -98,22 +123,22 @@ def naiveBayes(cardArray):
 
     #Choosing a class
 
-    probArray1Sum = 1
-    probArray2Sum = 1
-    probArray3Sum = 1
+    probArray1Acc = 1
+    probArray2Acc = 1
+    probArray3Acc = 1
 
     for element in class1ProbArray:
-        probArray1Sum *= element
+        probArray1Acc *= element
 
     for element in class2ProbArray:
-        probArray2Sum *= element
+        probArray2Acc *= element
 
     for element in class3ProbArray:
-        probArray3Sum *= element
+        probArray3Acc *= element
 
-    probClass1 = class1Probability * probArray1Sum
-    probClass2 = class1Probability * probArray2Sum
-    probClass3 = class1Probability * probArray3Sum
+    probClass1 = class1Probability * probArray1Acc
+    probClass2 = class1Probability * probArray2Acc
+    probClass3 = class1Probability * probArray3Acc
 
     chosenClass = 1
     maxClass = probClass1
