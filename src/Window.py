@@ -262,23 +262,30 @@ def calculateProbability(faceUpPlayerCards, faceUpHouseCards):
     for card in faceUpPlayerCards:
         points += card
 
-    winCard = 21 - points
+    winCard = 21 - points 
     faceUpCards = len(faceUpPlayerCards) + len(faceUpHouseCards)
-    nx = 0
+    nx = 0 
 
-    for i in range(0, winCard):
+    for i in range(1, winCard+1):
+        if(i >= 12):
+            break
+
         for card in faceUpPlayerCards:
             if(card == i):
                 nx += 1
 
         for card in faceUpHouseCards:
             if(card == i):
-                nx += 1
+                nx += 1   
 
         #nx is the number of cards that has the same value that you need to get 21 points
-        #nv is the number of face up cards in the game
-        p = (4-nx)
+        if(i == 10):
+            p = (16-nx)
+        else:
+            p = (4-nx)
+
         p = p / (52 - faceUpCards)
+        nx = 0
         total += p
 
     return total * 100
