@@ -3,9 +3,14 @@
 
 # To run: python3 Window.py
 
+import random
 import gi
 gi.require_version('Gtk', '3.0');
 from gi.repository import Gtk
+gi.require_version('Gdk', '3.0');
+from gi.repository import Gdk
+
+from gi.repository import GObject
 
 def set_margin (widget, amount):
     widget.set_margin_left (amount);
@@ -13,11 +18,133 @@ def set_margin (widget, amount):
     widget.set_margin_top (amount);
     widget.set_margin_bottom (amount);
 
-class Card (Gtk.Grid):
+class Deck ():
 
     def __init__ (self):
+        self.cards = list ();
+
+        suits = "♥","♠","♦","♣";
+        values = "A","2","3","4","5","6","7","8","9","10","J","Q","K";
+
+        for v in values:
+            for s in suits:
+                self.cards.append ((v, s));
+
+        random.shuffle(self.cards);
+        random.shuffle(self.cards);
+        random.shuffle(self.cards);
+        random.shuffle(self.cards);
+        random.shuffle(self.cards);
+
+    def get (self):
+        return self.cards.pop ();
+
+class Hand (Gtk.Grid, GObject.GObject):
+    __gsignals__ = {
+    'value_changed' : (GObject.SIGNAL_RUN_LAST, GObject.TYPE_NONE,
+                        (GObject.TYPE_INT,))
+    }
+
+    def __init__ (self, deck):
         Gtk.Grid.__init__ (self);
-        self.set_size_request (90, 110);
+        self.deck = deck;
+
+        self.card_1 = Card ();
+        self.card_2 = Card ();
+        self.card_3 = Card ();
+        self.card_4 = Card ();
+        self.card_5 = Card ();
+
+        self.card_1.connect ("clicked", self.request_card);
+        self.card_2.connect ("clicked", self.request_card);
+        self.card_3.connect ("clicked", self.request_card);
+        self.card_4.connect ("clicked", self.request_card);
+        self.card_5.connect ("clicked", self.request_card);
+
+        self.add (self.card_1);
+        self.add (self.card_2);
+        self.add (self.card_3);
+        self.add (self.card_4);
+        self.add (self.card_5);
+
+    def get_cards (self):
+        values = list ();
+
+        values.append (self.card_1.get_value ());
+        values.append (self.card_2.get_value ());
+        values.append (self.card_3.get_value ());
+        values.append (self.card_4.get_value ());
+        values.append (self.card_5.get_value ());
+        return values;
+
+    def get_value (self):
+        values = self.get_cards ();
+        aces = 0;
+        out = 0;
+        for val in values:
+            if (val == 11):
+                aces += 1;
+            out += val;
+
+        while (out > 21 and aces > 0):
+            aces -= 1;
+            out -= 10;
+
+        if (out > 21):
+            self.set_sensitive (False);
+
+        return out;
+
+    def request_card (self, card):
+        if self.is_set (card):
+            card.set_values (self.deck.get ());
+        self.emit('value_changed', self.get_value ())
+
+    def is_set (self, card):
+        return card.number1.get_label () == "";
+
+    def set (self, card):
+        if self.is_set (self.card_1):
+            self.card_1.set_values (card);
+        elif self.is_set (self.card_2):
+            self.card_2.set_values (card);
+        elif self.is_set (self.card_3):
+            self.card_3.set_values (card);
+        elif self.is_set (self.card_4):
+            self.card_4.set_values (card);
+        elif self.is_set (self.card_5):
+            self.card_5.set_values (card);
+
+    def set_1 (self, card):
+        self.card_1.set_values (card);
+
+    def set_2 (self, card):
+        self.card_2.set_values (card);
+
+    def set_3 (self, card):
+        self.card_3.set_values (card);
+
+    def set_4 (self, card):
+        self.card_4.set_values (card);
+
+    def set_5 (self, card):
+        self.card_5.set_values (card);
+
+    def reset ():
+        self.card_1.set_values (("", ""));
+        self.card_2.set_values (("", ""));
+        self.card_3.set_values (("", ""));
+        self.card_4.set_values (("", ""));
+        self.card_5.set_values (("", ""));
+
+class Card (Gtk.Button):
+
+    def __init__ (self):
+        Gtk.Button.__init__ (self);
+        self.grid = Gtk.Grid ();
+
+        self.set_size_request (100, 130);
+        self.set_can_focus (False);
 
         self.number1 = Gtk.Label ("");
         self.number2 = Gtk.Label ("");
@@ -30,44 +157,90 @@ class Card (Gtk.Grid):
         set_margin (self.symbol1, 12);
         set_margin (self.symbol2, 12);
 
-        self.attach (self.number1, 0, 0, 1, 1);
-        self.attach (self.symbol2, 1, 0, 1, 1);
-        self.attach (self.symbol1, 0, 1, 1, 1);
-        self.attach (self.number2, 1, 1, 1, 1);
+        self.grid.attach (self.number1, 0, 0, 1, 1);
+        self.grid.attach (self.symbol2, 1, 0, 1, 1);
+        self.grid.attach (self.symbol1, 0, 1, 1, 1);
+        self.grid.attach (self.number2, 1, 1, 1, 1);
+
+        self.add (self.grid);
         self.get_style_context ().add_class ("card");
-        self.get_style_context ().add_class ("h2");
+        self.get_style_context ().remove_class ("button");
+        self.grid.get_style_context ().add_class ("h2");
 
-    def set_values (self, number, symbol, color):
-        self.number1.set_label (number);
-        self.number2.set_label (number);
-        self.symbol1.set_label (symbol);
-        self.symbol2.set_label (symbol);
+        provider = Gtk.CssProvider ();
 
-        if (color == "red"):
-            self.get_style_context ().add_class ("error");
+        css = ".card:active {\nbox-shadow: inset 0 0 0 1px alpha (#000, 0.05),\n 0 1px 0 0 alpha (@bg_highlight_color, 0.3);\n }";
+        provider.load_from_data (bytes(css.encode ()));
+
+        context = self.get_style_context ();
+        context.add_provider (provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+    def get_value (self):
+        label = self.number1.get_label ();
+        if (label == ""):
+            return 0;
+        elif (label == "A"):
+            return 11;
+        elif (label == "J" or label == "Q" or label == "K"):
+            return 10;
+        else:
+            return int (label);
+
+    def set_values (self, card):
+        self.number1.set_label (card[0]);
+        self.number2.set_label (card[0]);
+        self.symbol1.set_label (card[1]);
+        self.symbol2.set_label (card[1]);
+
+        if (card[1] == "♥" or card[1] == "♦"):
+            self.grid.get_style_context ().add_class ("error");
         else:
             self.get_style_context ().remove_class ("error");
 
 class BlackjackWindow (Gtk.Window):
 
+    def print_value (self, hand, value):
+        self.show_results ();
+        print ("Test" + str (value));
+
     def __init__ (self):
         Gtk.Window.__init__ (self, title= "Blackjacker");
         self.set_size_request (300, 180);
+        self.deck = Deck ();
+
         grid = Gtk.Grid ();
+        grid.set_orientation (Gtk.Orientation.VERTICAL);
 
-        card = Card ();
-        card.set_values ("5", "♥", "red");
-        grid.add (card);
+        self.pc = Hand (self.deck);
+        self.pc.set_sensitive (False);
+        self.pc.set (self.deck.get ());
 
-        card = Card ();
-        card.set_values ("9", "♣", "black");
-        grid.add (card);
+        self.results = Gtk.Label ("Hold");
+        self.button = Gtk.Button ();
 
-        grid.add (Card ());
-        grid.add (Card ());
-        grid.add (Card ());
+        self.button.add (self.results);
+        self.button.get_style_context ().add_class ("suggested-action");
+        self.button.get_style_context ().add_class ("h1");
+        set_margin (self.button, 12);
 
-        self.add (grid)
+        grid.add (self.pc);
+        grid.add (self.button);
+        self.hand = Hand (self.deck);
+        self.hand.connect ("value_changed", self.print_value);
+
+        self.hand.set (self.deck.get ());
+        self.hand.set (self.deck.get ());
+
+        grid.add (self.hand);
+
+        self.add (grid);
+        self.show_results ();
+
+    def show_results (self):
+        string = "You: " + str (self.hand.get_value ());
+        string = string + " - House : " + str (self.pc.get_value ());
+
+        self.button.set_tooltip_text (string);
 
 def main():
     win = BlackjackWindow ();
