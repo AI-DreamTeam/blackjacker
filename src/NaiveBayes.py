@@ -1,3 +1,5 @@
+import sys
+
 classTable = { '3' : [1, 2],
                '4' : [1, 3],
                '5' : [1, 4, 2, 3],
@@ -22,7 +24,9 @@ classTable = { '3' : [1, 2],
 class1Probability = 8 / 19
 class2Probability = 7 / 19
 class3Probability = 4 / 19
-currCount_C = 40
+currCount_C1 = 40
+currCount_C2 = 58
+currCount_C3 = 12
 vocabularyLength = 11
 
 #Empty arrays, same size as the hand
@@ -31,7 +35,13 @@ class2ProbArray = list()
 class3ProbArray = list()
 
 def main():
-    cardArray = 1,4,1
+    args = sys.argv
+    cardArray = list()
+
+    for element in args:
+        if element != args[0]:
+            cardArray.append(int(element))
+
     naiveBayes(cardArray)
 
 def naiveBayes(cardArray):
@@ -54,7 +64,7 @@ def naiveBayes(cardArray):
                 if card == currentCard:
                     currCount_W_C += 1
 
-        class1ProbArray.append( (currCount_W_C + 1) / (currCount_C + vocabularyLength))
+        class1ProbArray.append( (currCount_W_C + 1) / (currCount_C1 + vocabularyLength))
 
         currCount_W_C = 0
 
@@ -64,7 +74,7 @@ def naiveBayes(cardArray):
                 if card == currentCard:
                     currCount_W_C += 1
 
-        class2ProbArray.append( (currCount_W_C + 1) / (currCount_C + vocabularyLength))
+        class2ProbArray.append( (currCount_W_C + 1) / (currCount_C2 + vocabularyLength))
 
         currCount_W_C = 0
 
@@ -74,16 +84,57 @@ def naiveBayes(cardArray):
                 if card == currentCard:
                     currCount_W_C += 1
 
-        class3ProbArray.append( (currCount_W_C + 1) / (currCount_C + vocabularyLength))
+        class3ProbArray.append( (currCount_W_C + 1) / (currCount_C3 + vocabularyLength))
 
 
         currCount_W_C = 0
         cardArrayIndex += 1
 
 
-    print(class1ProbArray)
-    print(class2ProbArray)
-    print(class3ProbArray)
+    print('Conditional probabilities for hand: \'' + str(cardArray) + '\'\n')
+    print('Class 1: ' + str(class1ProbArray))
+    print('Class 2: ' + str(class2ProbArray))
+    print('Class 3: ' + str(class3ProbArray))
+
+    #Choosing a class
+
+    probArray1Sum = 1
+    probArray2Sum = 1
+    probArray3Sum = 1
+
+    for element in class1ProbArray:
+        probArray1Sum *= element
+
+    for element in class2ProbArray:
+        probArray2Sum *= element
+
+    for element in class3ProbArray:
+        probArray3Sum *= element
+
+    probClass1 = class1Probability * probArray1Sum
+    probClass2 = class1Probability * probArray2Sum
+    probClass3 = class1Probability * probArray3Sum
+
+    chosenClass = 1
+    maxClass = probClass1
+
+    if probClass2 > maxClass:
+        maxClass = probClass2
+        chosenClass = 2
+
+    if probClass3 > maxClass:
+        maxClass = probClass3
+        chosenClass = 3
+
+    print('\nChoosing a class:')
+    print('Class 1: ' + str(probClass1))
+    print('Class 2: ' + str(probClass2))
+    print('Class 3: ' + str(probClass3))
+    print('\nChosen class: \'' + str(chosenClass) + '\'')
+    print('\nMax class: \'' + str(maxClass) + '\'')
+
+
+    return chosenClass, maxClass
 
 
 if __name__ == '__main__':
