@@ -75,7 +75,13 @@ class Hand (Gtk.Grid, GObject.GObject):
         values.append (self.card_3.get_value ());
         values.append (self.card_4.get_value ());
         values.append (self.card_5.get_value ());
-        return values;
+        
+        _values = list ();
+        for i in values:
+            if (i > 0):
+                _values.append (i);
+            
+        return _values;
 
     def get_value (self):
         values = self.get_cards ();
@@ -240,7 +246,42 @@ class BlackjackWindow (Gtk.Window):
         string = "You: " + str (self.hand.get_value ());
         string = string + " - House : " + str (self.pc.get_value ());
 
+        house_cards = self.pc.get_cards ();
+        user_cards = self.hand.get_cards ();
+
+        print (house_cards);
+        print (user_cards);
+
+        string = string + " - Safe next card: " + str (calculateProbability (user_cards, house_cards)) + "%";
+
         self.button.set_tooltip_text (string);
+
+def calculateProbability(faceUpPlayerCards, faceUpHouseCards):
+    points = 0
+    total = 0
+    for card in faceUpPlayerCards:
+        points += card
+
+    winCard = 21 - points
+    faceUpCards = len(faceUpPlayerCards) + len(faceUpHouseCards)
+    nx = 0
+
+    for i in range(0, winCard):
+        for card in faceUpPlayerCards:
+            if(card == i):
+                nx += 1
+
+        for card in faceUpHouseCards:
+            if(card == i):
+                nx += 1
+
+        #nx is the number of cards that has the same value that you need to get 21 points
+        #nv is the number of face up cards in the game
+        p = (4-nx)
+        p = p / (52 - faceUpCards)
+        total += p
+
+    return total * 100
 
 def main():
     win = BlackjackWindow ();
