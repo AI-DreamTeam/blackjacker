@@ -18,6 +18,10 @@ def set_margin (widget, amount):
     widget.set_margin_top (amount);
     widget.set_margin_bottom (amount);
 
+def set_margin_sides (widget, amount):
+    widget.set_margin_left (amount);
+    widget.set_margin_right (amount);
+
 class Deck ():
 
     def __init__ (self):
@@ -215,14 +219,104 @@ class Card (Gtk.Button):
         else:
             self.get_style_context ().remove_class ("error");
 
+class BlackjackerAccount (Gtk.Grid):
+
+    def __init__ (self):
+        Gtk.Grid.__init__ (self);
+        set_margin (self, 12);
+        self.get_style_context ().add_class ("frame");
+        self.get_style_context ().add_class ("view");
+        self.set_orientation (Gtk.Orientation.VERTICAL);
+        self.set_row_spacing (6);
+
+        self.pot_value = 10;
+        self.cash_value = 90;
+
+        pot = Gtk.Label ("Pot: $10");
+        cash = Gtk.Label ("Cash: $90");
+        raise_button = Gtk.Button ("Raise Bet (- $10)");
+
+        self.pot = pot;
+        self.cash = cash;
+        self.raise_button = raise_button;
+
+        raise_button.connect ("clicked", self.increase_pot);
+
+        self.results = Gtk.Label ("Hold");
+        self.button = Gtk.Button ();
+        self.button.add (self.results);
+        self.button.set_hexpand (True);
+
+        pot.set_halign (Gtk.Align.START);
+        cash.set_halign (Gtk.Align.START);
+
+        pot.set_margin_top (6);
+        set_margin_sides (pot, 6);
+        set_margin_sides (cash, 6);
+        set_margin_sides (raise_button, 6);
+        set_margin_sides (self.button, 6);
+        self.button.set_margin_bottom (6);
+
+        pot.get_style_context ().add_class ("h4");
+        cash.get_style_context ().add_class ("h4");
+        raise_button.get_style_context ().add_class ("destructive-action");
+        raise_button.get_style_context ().add_class ("h4");
+        raise_button.get_style_context ().add_class ("h3");
+        self.button.get_style_context ().add_class ("suggested-action");
+        self.button.get_style_context ().add_class ("h1");
+
+        self.add (pot);
+        self.add (cash);
+        self.add (raise_button);
+        self.add (self.button);
+
+    def increase_pot (self, button):
+        self.cash_value = self.cash_value - 10;
+        self.pot_value = self.pot_value + 10;
+
+        if (self.cash_value <= 0):
+            self.deactivate_raise ();
+
+        self.pot.set_label ("Pot: $" + str (self.pot_value));
+
+        self.cash.set_label ("Cash: $" + str (self.cash_value));
+
+    def check_lost (self):
+        if (self.cash_value == 0):
+            self.button.set_sensitive (False);
+            self.button.set_tooltip_text ("Quit to restart...");
+
+    def deactivate_raise (self):
+        self.raise_button.set_sensitive (False);
+
+    def reset_round (self, won):
+        if (won):
+            self.cash_value = self.cash_value + self.pot_value * 2;
+
+        self.pot_value = 0;
+        self.pot.set_label ("Pot: $0");
+        self.cash.set_label ("Cash: $" + str (self.cash_value));
+
+        if (self.cash_value > 0):
+            self.button.set_sensitive (True);
+            self.raise_button.set_sensitive (True);
+        else:
+            self.button.set_sensitive (False);
+            self.raise_button.set_sensitive (False);
+
+    def start_round (self):
+        self.raise_button.clicked ();
+
 class BlackjackWindow (Gtk.Window):
 
     def print_value (self, hand, value):
+        self.account.deactivate_raise ();
         self.show_results ();
 
     def __init__ (self):
         Gtk.Window.__init__ (self, title= "Blackjacker");
         self.game_over = False;
+        self.win = False;
 
         self.set_size_request (300, 180);
         self.deck = Deck ();
@@ -234,18 +328,16 @@ class BlackjackWindow (Gtk.Window):
         self.pc.set_sensitive (False);
         self.pc.set (self.deck.get ());
 
-        self.results = Gtk.Label ("Hold");
-        self.button = Gtk.Button ();
+        account = BlackjackerAccount ();
+
+        self.account = account;
+        self.results = account.results;
+        self.button = account.button;
 
         self.button.connect ("clicked", self.main_button_clicked);
 
-        self.button.add (self.results);
-        self.button.get_style_context ().add_class ("suggested-action");
-        self.button.get_style_context ().add_class ("h1");
-        set_margin (self.button, 12);
-
         grid.add (self.pc);
-        grid.add (self.button);
+        grid.add (account);
         self.hand = Hand (self.deck);
         self.hand.connect ("value_changed", self.print_value);
 
@@ -256,10 +348,13 @@ class BlackjackWindow (Gtk.Window):
 
         self.add (grid);
         self.show_results ();
+        self.account.raise_button.set_sensitive (True);
 
     def main_button_clicked (self, button):
+        self.account.deactivate_raise ();
         if (self.game_over):
             self.reset ();
+            self.account.start_round ();
         else:
             self.run_game ();
 
@@ -273,6 +368,8 @@ class BlackjackWindow (Gtk.Window):
         self.hand.set (self.deck.get ());
         self.pc.set (self.deck.get ());
         self.hand.set (self.deck.get ());
+        self.account.reset_round (self.win);
+        self.win = False;
 
     def run_game (self):
         pc = self.pc;
@@ -286,7 +383,7 @@ class BlackjackWindow (Gtk.Window):
         if (hand_value > 21):
             win = False;
 
-        while (pc_value < 17):
+        while (pc_value < 17 and calculateProbability (pc.get_cards (True), hand.get_cards (True)) > 40.0):
             pc.set (self.deck.get ());
             pc_value = pc.get_value ();
 
@@ -297,7 +394,10 @@ class BlackjackWindow (Gtk.Window):
             self.results.set_label ("You Won!");
         else:
             self.results.set_label ("You Lost :(");
+            self.account.check_lost ();
+            self.account.deactivate_raise ();
 
+        self.win = win;
         self.game_over = True;
         hand.set_sensitive (False);
 
@@ -308,6 +408,7 @@ class BlackjackWindow (Gtk.Window):
             self.results.set_label ("You Lost :(");
             self.game_over = True;
             self.button.set_tooltip_text ("Click to restart...");
+            self.account.check_lost ();
             return;
 
         string = "You: " + str (hand_value);
