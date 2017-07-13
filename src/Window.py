@@ -13,6 +13,25 @@ from gi.repository import Gdk
 
 from gi.repository import GObject
 
+CLASS_1_TIP = ("Your hand is not too good. You should raise your bet a bit"  +
+" (if you can), and take another card always\nchecking how safe it is to do so" +
+" (Below 45% is not too good, and you should hold!).")
+
+CLASS_2_TIP = ("You have a decent hand. You could raise your bet a bit (if you can)," +
+" and take another card, since it should\nbe really safe to do so (but check how safe anyway! ).")
+
+CLASS_3_TIP = ("You have an excellent hand! You should really raise your bet and hold," +
+" since it's very likely you will win. If you\nthink your hand is not too good and it's safe to" +
+" take another card, do it, but don't raise the bet too much.")
+
+WIN_TIP = ("Wow! Lucky you! Go ahead, raise the bet to the top (if you can) and hold to win!")
+
+ACE_TIP = ("You have at least an Ace in your hand, which means you have two choices! If you use your Ace as a 1, " +
+"\ntake the first tip, and if you use it as an 11, take the second tip!\n\n" + "1. You probably won't go " +
+"over 21 using it as 1, but if your hand is over 16, it would be better to hold\n and raise the bet a little bit." +
+"\n\n2. Check how safe it is to get another card, but it's very likely that your hand is already a very good\none "+
+"(over 16 is great!); you should raise your bet considerably before holding.")
+
 def set_margin (widget, amount):
     widget.set_margin_left (amount);
     widget.set_margin_right (amount);
@@ -431,19 +450,20 @@ class BlackjackWindow (Gtk.Window):
 
         bayesResult = naiveBayes.naiveBayes(user_cards)
 
-        if(bayesResult == 1):
-            self.handClass.set_label ("Your hand is kind of low, or you have an As. You should raise your bet a bit"  +
-            " (if you can), and take another\ncard (if you have an As, it's up to you), always checking how safe it" +
-            " is to do so (Below 45% is not too good,\nand you should hold! ).");
-        elif(bayesResult == 2):
-            self.handClass.set_label ("You have a decent hand. You could raise your bet a bit (if you can)," +
-            " and take another card, since it should\nbe really safe to do so (but check how safe anyway! )." );
-        elif hand_value == 21:
-            self.handClass.set_label("Wow! Lucky you! Go ahead, raise the bet to the top (if you can) and hold to win!");
+        #If there is an Ace in the hand, change the tip to a special one
+        if 1 not in user_cards:
+
+            if(bayesResult == 1):
+                self.handClass.set_label (CLASS_1_TIP);
+            elif(bayesResult == 2):
+                self.handClass.set_label (CLASS_2_TIP);
+            else:
+                self.handClass.set_label (CLASS_3_TIP);
         else:
-            self.handClass.set_label ("You have an excellent hand! You should really raise your bet and hold," +
-            " since it's very likely you will win. If you\nthink your hand is not too good and it's safe to" +
-            " take another card, do it, but don't raise the bet too much.");
+            self.handClass.set_label (ACE_TIP)
+
+        if hand_value == 21:
+            self.handClass.set_label(WIN_TIP);
 
         self.button.set_tooltip_text (string);
 
