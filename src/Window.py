@@ -3,6 +3,7 @@
 
 # To run: python3 Window.py
 import Euristic as euristic
+import NaiveBayes as naiveBayes
 import random
 import gi
 gi.require_version('Gtk', '3.0');
@@ -234,10 +235,12 @@ class BlackjackerAccount (Gtk.Grid):
 
         pot = Gtk.Label ("Pot: $10");
         cash = Gtk.Label ("Cash: $90");
+        handClass = Gtk.Label("Test");
         raise_button = Gtk.Button ("Raise Bet (- $10)");
 
         self.pot = pot;
         self.cash = cash;
+        self.handClass = handClass;
         self.raise_button = raise_button;
 
         raise_button.connect ("clicked", self.increase_pot);
@@ -249,16 +252,19 @@ class BlackjackerAccount (Gtk.Grid):
 
         pot.set_halign (Gtk.Align.START);
         cash.set_halign (Gtk.Align.START);
+        handClass.set_halign (Gtk.Align.START);
 
         pot.set_margin_top (6);
         set_margin_sides (pot, 6);
         set_margin_sides (cash, 6);
+        set_margin_sides (handClass,6);
         set_margin_sides (raise_button, 6);
         set_margin_sides (self.button, 6);
         self.button.set_margin_bottom (6);
 
         pot.get_style_context ().add_class ("h4");
         cash.get_style_context ().add_class ("h4");
+        handClass.get_style_context ().add_class("ha");
         raise_button.get_style_context ().add_class ("destructive-action");
         raise_button.get_style_context ().add_class ("h4");
         raise_button.get_style_context ().add_class ("h3");
@@ -267,6 +273,7 @@ class BlackjackerAccount (Gtk.Grid):
 
         self.add (pot);
         self.add (cash);
+        self.add (handClass);
         self.add (raise_button);
         self.add (self.button);
 
@@ -333,6 +340,7 @@ class BlackjackWindow (Gtk.Window):
         self.account = account;
         self.results = account.results;
         self.button = account.button;
+        self.handClass = account.handClass;
 
         self.button.connect ("clicked", self.main_button_clicked);
 
@@ -418,6 +426,14 @@ class BlackjackWindow (Gtk.Window):
         user_cards = self.hand.get_cards (True);
 
         string = string + " - Safe next card: " + str (euristic.calculateProbability (user_cards, house_cards)) + "%";
+        
+        #player's hand clssification
+        if(naiveBayes.naiveBayes(user_cards) == 1):
+            self.handClass.set_label ("Your hand sucks");
+        elif(naiveBayes.naiveBayes(user_cards) == 2):
+            self.handClass.set_label ("You have a good hand :3");
+        else:
+            self.handClass.set_label ("You have an excelent hand :O");
 
         self.button.set_tooltip_text (string);
 
