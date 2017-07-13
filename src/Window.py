@@ -21,6 +21,9 @@ def set_margin (widget, amount):
 class Deck ():
 
     def __init__ (self):
+        self.reset ();
+
+    def reset (self):
         self.cards = list ();
 
         suits = "♥","♠","♦","♣";
@@ -67,7 +70,7 @@ class Hand (Gtk.Grid, GObject.GObject):
         self.add (self.card_4);
         self.add (self.card_5);
 
-    def get_cards (self):
+    def get_cards (self, validate = False):
         values = list ();
 
         values.append (self.card_1.get_value ());
@@ -75,12 +78,20 @@ class Hand (Gtk.Grid, GObject.GObject):
         values.append (self.card_3.get_value ());
         values.append (self.card_4.get_value ());
         values.append (self.card_5.get_value ());
-        
+
         _values = list ();
+
+        current_value = 0;
+        if (validate):
+            current_value = self.get_value ();
+
         for i in values:
             if (i > 0):
-                _values.append (i);
-            
+                if (validate and i == 11):
+                    _values.append (1);
+                else:
+                    _values.append (i);
+
         return _values;
 
     def get_value (self):
@@ -120,6 +131,7 @@ class Hand (Gtk.Grid, GObject.GObject):
             self.card_4.set_values (card);
         elif self.is_set (self.card_5):
             self.card_5.set_values (card);
+        self.emit('value_changed', self.get_value ())
 
     def set_1 (self, card):
         self.card_1.set_values (card);
@@ -136,7 +148,7 @@ class Hand (Gtk.Grid, GObject.GObject):
     def set_5 (self, card):
         self.card_5.set_values (card);
 
-    def reset ():
+    def reset (self):
         self.card_1.set_values (("", ""));
         self.card_2.set_values (("", ""));
         self.card_3.set_values (("", ""));
@@ -207,10 +219,11 @@ class BlackjackWindow (Gtk.Window):
 
     def print_value (self, hand, value):
         self.show_results ();
-        print ("Test" + str (value));
 
     def __init__ (self):
         Gtk.Window.__init__ (self, title= "Blackjacker");
+        self.game_over = False;
+
         self.set_size_request (300, 180);
         self.deck = Deck ();
 
@@ -223,6 +236,8 @@ class BlackjackWindow (Gtk.Window):
 
         self.results = Gtk.Label ("Hold");
         self.button = Gtk.Button ();
+
+        self.button.connect ("clicked", self.main_button_clicked);
 
         self.button.add (self.results);
         self.button.get_style_context ().add_class ("suggested-action");
@@ -242,15 +257,64 @@ class BlackjackWindow (Gtk.Window):
         self.add (grid);
         self.show_results ();
 
+    def main_button_clicked (self, button):
+        if (self.game_over):
+            self.reset ();
+        else:
+            self.run_game ();
+
+    def reset (self):
+        self.game_over = False;
+        self.hand.reset ();
+        self.hand.set_sensitive (True);
+        self.pc.reset ();
+        self.deck.reset ();
+        self.results.set_label ("Hold");
+        self.hand.set (self.deck.get ());
+        self.pc.set (self.deck.get ());
+        self.hand.set (self.deck.get ());
+
+    def run_game (self):
+        pc = self.pc;
+        hand = self.hand;
+
+        hand_value = hand.get_value ();
+        pc_value = pc.get_value ();
+
+        win = True;
+
+        if (hand_value > 21):
+            win = False;
+
+        while (pc_value < 17):
+            pc.set (self.deck.get ());
+            pc_value = pc.get_value ();
+
+        if (win and pc_value <= 21):
+            win = hand_value > pc_value
+
+        if (win):
+            self.results.set_label ("You Won!");
+        else:
+            self.results.set_label ("You Lost :(");
+
+        self.game_over = True;
+        hand.set_sensitive (False);
+
     def show_results (self):
-        string = "You: " + str (self.hand.get_value ());
+        hand_value = self.hand.get_value ();
+
+        if (hand_value > 21):
+            self.results.set_label ("You Lost :(");
+            self.game_over = True;
+            self.button.set_tooltip_text ("Click to restart...");
+            return;
+
+        string = "You: " + str (hand_value);
         string = string + " - House : " + str (self.pc.get_value ());
 
-        house_cards = self.pc.get_cards ();
-        user_cards = self.hand.get_cards ();
-
-        print (house_cards);
-        print (user_cards);
+        house_cards = self.pc.get_cards (True);
+        user_cards = self.hand.get_cards (True);
 
         string = string + " - Safe next card: " + str (calculateProbability (user_cards, house_cards)) + "%";
 
@@ -259,12 +323,16 @@ class BlackjackWindow (Gtk.Window):
 def calculateProbability(faceUpPlayerCards, faceUpHouseCards):
     points = 0
     total = 0
+
+    print (faceUpPlayerCards);
+    print (faceUpHouseCards);
+
     for card in faceUpPlayerCards:
         points += card
 
-    winCard = 21 - points 
+    winCard = 21 - points
     faceUpCards = len(faceUpPlayerCards) + len(faceUpHouseCards)
-    nx = 0 
+    nx = 0
 
     for i in range(1, winCard+1):
         if(i >= 12):
@@ -276,7 +344,7 @@ def calculateProbability(faceUpPlayerCards, faceUpHouseCards):
 
         for card in faceUpHouseCards:
             if(card == i):
-                nx += 1   
+                nx += 1
 
         #nx is the number of cards that has the same value that you need to get 21 points
         if(i == 10):
