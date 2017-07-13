@@ -426,14 +426,24 @@ class BlackjackWindow (Gtk.Window):
         user_cards = self.hand.get_cards (True);
 
         string = string + " - Safe next card: " + str (euristic.calculateProbability (user_cards, house_cards)) + "%";
-        
+
         #player's hand clssification
-        if(naiveBayes.naiveBayes(user_cards) == 1):
-            self.handClass.set_label ("Your hand sucks");
-        elif(naiveBayes.naiveBayes(user_cards) == 2):
-            self.handClass.set_label ("You have a good hand :3");
+
+        bayesResult = naiveBayes.naiveBayes(user_cards)
+
+        if(bayesResult == 1):
+            self.handClass.set_label ("Your hand is kind of low, or you have an As. You should raise your bet a bit"  +
+            " (if you can), and take another\ncard (if you have an As, it's up to you), always checking how safe it" +
+            " is to do so (Below 45% is not too good,\nand you should hold! ).");
+        elif(bayesResult == 2):
+            self.handClass.set_label ("You have a decent hand. You could raise your bet a bit (if you can)," +
+            " and take another card, since it should\nbe really safe to do so (but check how safe anyway! )." );
+        elif hand_value == 21:
+            self.handClass.set_label("Wow! Lucky you! Go ahead, raise the bet to the top (if you can) and hold to win!");
         else:
-            self.handClass.set_label ("You have an excelent hand :O");
+            self.handClass.set_label ("You have an excellent hand! You should really raise your bet and hold," +
+            " since it's very likely you will win. If you\nthink your hand is not too good and it's safe to" +
+            " take another card, do it, but don't raise the bet too much.");
 
         self.button.set_tooltip_text (string);
 
