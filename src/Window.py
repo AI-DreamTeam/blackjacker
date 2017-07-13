@@ -215,7 +215,7 @@ class Card (Gtk.Button):
         self.symbol2.set_label (card[1]);
 
         if (card[1] == "♥" or card[1] == "♦"):
-            self.grid.get_style_context ().add_class ("error");
+            self.get_style_context ().add_class ("error");
         else:
             self.get_style_context ().remove_class ("error");
 
