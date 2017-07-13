@@ -2,7 +2,7 @@
 # -*- coding: utf8 -*-
 
 # To run: python3 Window.py
-
+import Euristic as euristic
 import random
 import gi
 gi.require_version('Gtk', '3.0');
@@ -383,7 +383,7 @@ class BlackjackWindow (Gtk.Window):
         if (hand_value > 21):
             win = False;
 
-        while (pc_value < 17 and calculateProbability (pc.get_cards (True), hand.get_cards (True)) > 40.0):
+        while (pc_value < 17 and euristic.calculateProbability (pc.get_cards (True), hand.get_cards (True)) > 40.0):
             pc.set (self.deck.get ());
             pc_value = pc.get_value ();
 
@@ -417,47 +417,9 @@ class BlackjackWindow (Gtk.Window):
         house_cards = self.pc.get_cards (True);
         user_cards = self.hand.get_cards (True);
 
-        string = string + " - Safe next card: " + str (calculateProbability (user_cards, house_cards)) + "%";
+        string = string + " - Safe next card: " + str (euristic.calculateProbability (user_cards, house_cards)) + "%";
 
         self.button.set_tooltip_text (string);
-
-def calculateProbability(faceUpPlayerCards, faceUpHouseCards):
-    points = 0
-    total = 0
-
-    print (faceUpPlayerCards);
-    print (faceUpHouseCards);
-
-    for card in faceUpPlayerCards:
-        points += card
-
-    winCard = 21 - points
-    faceUpCards = len(faceUpPlayerCards) + len(faceUpHouseCards)
-    nx = 0
-
-    for i in range(1, winCard+1):
-        if(i >= 12):
-            break
-
-        for card in faceUpPlayerCards:
-            if(card == i):
-                nx += 1
-
-        for card in faceUpHouseCards:
-            if(card == i):
-                nx += 1
-
-        #nx is the number of cards that has the same value that you need to get 21 points
-        if(i == 10):
-            p = (16-nx)
-        else:
-            p = (4-nx)
-
-        p = p / (52 - faceUpCards)
-        nx = 0
-        total += p
-
-    return total * 100
 
 def main():
     win = BlackjackWindow ();

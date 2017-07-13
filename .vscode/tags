@@ -1,0 +1,17 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BlackjackWindow	../src/Window.py	/^class BlackjackWindow (Gtk.Window):$/;"	kind:class	line:51
+Card	../src/Window.py	/^class Card (Gtk.Grid):$/;"	kind:class	line:16
+Euristic.py	../src/Euristic.py	1;"	kind:file	line:1
+Window.py	../src/Window.py	1;"	kind:file	line:1
+__init__	../src/Window.py	/^    def __init__ (self):$/;"	kind:member	line:18
+__init__	../src/Window.py	/^    def __init__ (self):$/;"	kind:member	line:53
+calculateProbability	../src/Euristic.py	/^def calculateProbability(faceUpPlayerCards, faceUpHouseCards):$/;"	kind:function	line:5
+main	../src/Euristic.py	/^def main():$/;"	kind:function	line:1
+main	../src/Window.py	/^def main():$/;"	kind:function	line:72
+set_margin	../src/Window.py	/^def set_margin (widget, amount):$/;"	kind:function	line:10
+set_values	../src/Window.py	/^    def set_values (self, number, symbol, color):$/;"	kind:member	line:40
