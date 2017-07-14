@@ -1,8 +1,8 @@
 [Desktop Entry]
 Name=Blackjacker
 Comment=Play blackjack
-Exec=
-Icon=com.github.ai-dreamteam.blackjacker
+Exec=python3 /home/felipe/Code/blackjack/src/Window.py
+Icon=/home/felipe/Code/blackjack/data/blackjacker.svg
 Terminal=false
 Type=Application
 StartupNotify=true

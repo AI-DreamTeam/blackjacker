@@ -415,7 +415,7 @@ class BlackjackWindow (Gtk.Window):
         if (hand_value > 21):
             win = False;
 
-        while (pc_value < 17 and euristic.calculateProbability (pc.get_cards (True), hand.get_cards (True)) > 40.0):
+        while (euristic.calculateProbability (pc.get_cards (True), hand.get_cards (True)) > 30.0):
             pc.set (self.deck.get ());
             pc_value = pc.get_value ();
 
