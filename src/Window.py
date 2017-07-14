@@ -13,7 +13,7 @@ from gi.repository import Gdk
 
 from gi.repository import GObject
 
-CLASS_1_TIP = ("Your hand is not too good. You should raise your bet a bit"  +
+CLASS_1_TIP = ("Your hand is not too good. \nYou should raise your bet a bit"  +
 " (if you can), and take another card always\nchecking how safe it is to do so" +
 " (Below 45% is not too good, and you should hold!).")
 
@@ -21,13 +21,13 @@ CLASS_2_TIP = ("You have a decent hand. You could raise your bet a bit (if you c
 " and take another card, since it should\nbe really safe to do so (but check how safe anyway! ).")
 
 CLASS_3_TIP = ("You have an excellent hand! You should really raise your bet and hold," +
-" since it's very likely you will win. If you\nthink your hand is not too good and it's safe to" +
+" since it's very likely you will win. If you think your hand is not too good and it's safe to" +
 " take another card, do it, but don't raise the bet too much.")
 
 WIN_TIP = ("Wow! Lucky you! Go ahead, raise the bet to the top (if you can) and hold to win!")
 
-ACE_TIP = ("You have at least an Ace in your hand, which means you have two choices! If you use your Ace as a 1, " +
-"\ntake the first tip, and if you use it as an 11, take the second tip!\n\n" + "1. You probably won't go " +
+ACE_TIP = ("You have at least an Ace in your hand, which means you have two choices! \nIf you use your Ace as a 1, " +
+"take the first tip, and if you use it as an 11, take the second tip!\n\n" + "1. You probably won't go " +
 "over 21 using it as 1, but if your hand is over 16, it would be better to hold\n and raise the bet a little bit." +
 "\n\n2. Check how safe it is to get another card, but it's very likely that your hand is already a very good\none "+
 "(over 16 is great!); you should raise your bet considerably before holding.")
@@ -254,7 +254,10 @@ class BlackjackerAccount (Gtk.Grid):
 
         pot = Gtk.Label ("Pot: $10");
         cash = Gtk.Label ("Cash: $90");
-        handClass = Gtk.Label("Test");
+        handClass = Gtk.Image ();
+        handClass.set_from_icon_name ("help-info-symbolic", Gtk.IconSize.MENU);
+        handClass.set_halign (Gtk.Align.END);
+
         raise_button = Gtk.Button ("Raise Bet (- $10)");
 
         self.pot = pot;
@@ -283,7 +286,6 @@ class BlackjackerAccount (Gtk.Grid):
 
         pot.get_style_context ().add_class ("h4");
         cash.get_style_context ().add_class ("h4");
-        handClass.get_style_context ().add_class("ha");
         raise_button.get_style_context ().add_class ("destructive-action");
         raise_button.get_style_context ().add_class ("h4");
         raise_button.get_style_context ().add_class ("h3");
@@ -292,9 +294,12 @@ class BlackjackerAccount (Gtk.Grid):
 
         self.add (pot);
         self.add (cash);
-        self.add (handClass);
-        self.add (raise_button);
-        self.add (self.button);
+        self.attach (handClass, 1, 0, 1, 1);
+        self.attach (raise_button, 0, 3, 2, 1);
+        self.attach (self.button, 0, 4, 2, 1);
+
+        handClass.set_halign (Gtk.Align.END);
+        set_margin (handClass, 12);
 
     def increase_pot (self, button):
         self.cash_value = self.cash_value - 10;
@@ -454,16 +459,16 @@ class BlackjackWindow (Gtk.Window):
         if 1 not in user_cards:
 
             if(bayesResult == 1):
-                self.handClass.set_label (CLASS_1_TIP);
+                self.handClass.set_tooltip_text (CLASS_1_TIP);
             elif(bayesResult == 2):
-                self.handClass.set_label (CLASS_2_TIP);
+                self.handClass.set_tooltip_text (CLASS_2_TIP);
             else:
-                self.handClass.set_label (CLASS_3_TIP);
+                self.handClass.set_tooltip_text (CLASS_3_TIP);
         else:
-            self.handClass.set_label (ACE_TIP)
+            self.handClass.set_tooltip_text (ACE_TIP)
 
         if hand_value == 21:
-            self.handClass.set_label(WIN_TIP);
+            self.handClass.set_tooltip_text(WIN_TIP);
 
         self.button.set_tooltip_text (string);
 
