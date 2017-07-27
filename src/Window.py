@@ -417,18 +417,24 @@ class BlackjackWindow (Gtk.Window):
 
         while (euristic.calculateProbability (pc.get_cards (True), hand.get_cards (True)) > 30.0):
             pc.set (self.deck.get ());
-            pc_value = pc.get_value ();
+        
+        pc_value = pc.get_value ();
 
         if (win and pc_value <= 21):
             win = hand_value > pc_value
 
+        
+        self.show_final_results (win);
+        
+
+    def show_final_results (self, win):
         if (win):
             self.results.set_label ("You Won!");
         else:
-            self.results.set_label ("You Lost :(");
+            self.results.set_label ("You Lost");
             self.account.check_lost ();
             self.account.deactivate_raise ();
-
+            
         self.win = win;
         self.game_over = True;
         hand.set_sensitive (False);
@@ -437,11 +443,16 @@ class BlackjackWindow (Gtk.Window):
         hand_value = self.hand.get_value ();
 
         if (hand_value > 21):
-            self.results.set_label ("You Lost :(");
+            self.results.set_label ("You Lost");
             self.game_over = True;
             self.button.set_tooltip_text ("Click to restart...");
             self.account.check_lost ();
             return;
+        
+        hand_cards = self.hand.get_cards ();
+        
+        if (len (hand_cards) == 5):
+            self.show_final_results (True);
 
         string = "You: " + str (hand_value);
         string = string + " - House : " + str (self.pc.get_value ());
@@ -449,7 +460,7 @@ class BlackjackWindow (Gtk.Window):
         house_cards = self.pc.get_cards (True);
         user_cards = self.hand.get_cards (True);
 
-        string = string + " - Safe next card: " + str (euristic.calculateProbability (user_cards, house_cards)) + "%";
+        string = string + " - Safe next card: " + '%.2f'%(euristic.calculateProbability (user_cards, house_cards)) + "%";
 
         #player's hand clssification
 
